@@ -1,18 +1,18 @@
 import React from 'react';
-
 import './App.css';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      passwordType: false,
+      passwordVisibility: 'password',
       username: "",
       password: "",
       errorMsg: "",
-      successMsg: "",
-      passwordType: true
+      successMsg: ""
+
     }
-    // this.passwordTypeFunc = this.passwordTypeFunc.bind(this);
     this.regex = "@%+/'!#$^?:,(){}[]~-_.";
   }
   usernameFunc(e) {
@@ -23,10 +23,23 @@ class App extends React.Component {
     this.setState({ password: e.target.value })
   }
 
-  // passwordTypeFunc(e) {
-  //  console.log(this.state.passwordType)
-  // }
+  passwordTypeFunc(e) {
+    e.preventDefault();
+    this.setState(prevState => ({
+      passwordType: !prevState.passwordType
+    }))
 
+    if (this.state.passwordVisibility === 'password') {
+      this.setState({ passwordVisibility: 'text' })
+    } else { this.setState({ passwordVisibility: 'password' }) }
+
+
+  }
+
+  validationFunction(values) {
+    this.setState({ ...values })
+    console.log(values)
+  }
 
   signupFunc(e) {
     //username validation
@@ -39,7 +52,7 @@ class App extends React.Component {
       }
     }
     const str = this.state.password;
-    const regularExSymbols = RegExp(/[-!$%^&*()_+|~=`{}\[\]:";#'<>?,.\/]/, 'g');
+    const regularExSymbols = RegExp(/[-!$%^&*()_+|~=`{}[\]:";#'<>?,./]/, 'g');
     const regularExNumbers = RegExp(/[0-9]/);
     const resultExNumbers = regularExNumbers.test(str);
     const resultSymbols = regularExSymbols.test(str);
@@ -47,61 +60,75 @@ class App extends React.Component {
 
     switch (true) {
       case this.state.username === "":
-        this.setState({
-          errorMsg: "User name is required my friend",
-          successMsg: ""
-        });
+        this.validationFunction(
+          {
+            errorMsg: "User name is required my friend",
+            successMsg: ""
+          }
+        )
+
         break;
       case !this.state.username.includes("@"):
-        this.setState({
-          errorMsg: "We need a valid Email address",
-          successMsg: ""
-        })
+        this.validationFunction(
+          {
+            errorMsg: "We need a valid Email address",
+            successMsg: ""
+          })
+
         break;
       case this.state.password === "":
-        this.setState({
-          errorMsg: "Password is required",
-          successMsg: ""
-        })
+        this.validationFunction(
+          {
+            errorMsg: "Password is required",
+            successMsg: ""
+          })
+
         break;
       case !addPassword.includes(true):
-        console.log(!addPassword.includes(true))
-        this.setState({
-          errorMsg: "For password you need at least one uppercase letter",
-          successMsg: ""
-        });
+        this.validationFunction(
+          {
+            errorMsg: "For password you need at least one uppercase letter",
+            successMsg: ""
+          })
+
         break;
       case !resultSymbols:
-        this.setState({
-          errorMsg: "You must have at least one special character",
-          successMsg: ""
-        });
+        this.validationFunction(
+          {
+            errorMsg: "You must have at least one special character",
+            successMsg: ""
+          })
         break;
       case !resultExNumbers:
-        this.setState({
-          errorMsg: "You need to have a number",
-          successMsg: ""
-        })
+        this.validationFunction(
+          {
+            errorMsg: "You need to have a number",
+            successMsg: ""
+          })
         break;
       case this.state.password.length < 8:
-        this.setState({
-          errorMsg: "The password must have at least 8 characters",
-          successMsg: ""
-        })
+        this.validationFunction(
+          {
+            errorMsg: "The password must have at least 8 characters",
+            successMsg: ""
+          })
+
         break;
       case this.state.password.includes(usernameAlone):
-        this.setState({
-          errorMsg: "The password can't contain the username",
+        this.validationFunction(
+          {
+            errorMsg: "The password can't contain the username",
+            successMsg: ""
+          })
+        break;
+      default: this.validationFunction(
+        {
+          errorMsg: `Congrats ${usernameAlone}! You user have been created.`,
           successMsg: ""
         })
-        break;
-      default: this.setState({
-        successMsg: `Congrats ${usernameAlone}! You user have been created.`,
-        errorMsg: ""
-      })
     }
 
-   
+
   }
 
   render() {
@@ -110,16 +137,29 @@ class App extends React.Component {
         <form>
           <label htmlFor="user">
             Username <br />
-            <input name={this.state.username} id="pass" value={this.state.username} onChange={(e) => { this.usernameFunc(e) }} />
+            <input
+              name={this.state.username} id="pass"
+              value={this.state.username}
+              onChange={(e) => { this.usernameFunc(e) }} />
           </label>
           <label htmlFor="pass">
             Password <br />
-            <input type={this.state.passwordType} name={this.state.password} id="pass" value={this.state.password} onChange={(e) => { this.passwordFunc(e) }} />
+            <input
+              type={this.state.passwordVisibility}
+              name={this.state.password} id="pass"
+              value={this.state.password.toString()}
+              onChange={(e) => { this.passwordFunc(e) }} />
           </label>
-          <label>
-            <input type="radio" onClick={this.passwordTypeFunc} selected={this.state.passwordType} />
+          <label className='show-button'>
+            <button
+              className='eye'
+              onClick={(e) => { this.passwordTypeFunc(e) }}
+              value={this.state.passwordType} />
+            <span>Show password</span>
           </label>
-          <button type="submit" onClick={(e) => { this.signupFunc(e) }}>Signup</button>
+          <button
+            type="submit"
+            onClick={(e) => { this.signupFunc(e) }}>Sign up</button>
           <p>{this.state.errorMsg}{this.state.successMsg}</p>
         </form>
 
